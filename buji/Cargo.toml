@@ -1,0 +1,8 @@
+[package]
+name = "buji"
+authors = ["Burak Selim Senyurt"]
+description = "An experimental game engine being written with Rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
