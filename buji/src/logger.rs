@@ -40,10 +40,9 @@ impl<W: Write> Log<W> {
     ///
     /// ```
     /// use std::io;
-    /// use buji::{Log,LogLevel};
+    /// use buji::{Log, LogLevel, MockLogger};
     ///
-    /// let stdout = io::stdout();
-    /// let mut logger = Log::new(stdout);
+    /// let mut logger = Log::new(MockLogger);
     ///
     /// logger.write(LogLevel::Info, "This is an info message");
     /// logger.write(LogLevel::Warn, "This is a warning message");
@@ -70,5 +69,16 @@ impl<W: Write> Log<W> {
         if let Err(e) = self.target.write_all(entry.as_bytes()) {
             eprintln!("Failed to write log : {}", e);
         }
+    }
+}
+
+pub struct MockLogger;
+
+impl Write for MockLogger {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        Ok(buf.len())
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
     }
 }

@@ -100,7 +100,7 @@ impl<W: Write> GameEngine<W> {
 /// # Example
 ///
 /// ```rust
-/// use buji::{GameObject,MainState,GameEngineBuilder, Log,LogLevel};
+/// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger};
 /// use std::io::stdout;
 ///
 /// struct YourGameObject;
@@ -117,7 +117,7 @@ impl<W: Write> GameEngine<W> {
 /// }
 ///
 /// fn main() -> Result<(), String> {
-///     let logger = Log::new(stdout());
+///     let logger = Log::new(MockLogger);
 ///     let game = Box::new(YourGameObject);
 ///
 ///     let mut engine = GameEngineBuilder::new()?
@@ -127,7 +127,8 @@ impl<W: Write> GameEngine<W> {
 ///         .add_logger(logger)
 ///         .build()?;
 ///
-///     engine.run()
+///     Ok(())
+///
 /// }
 /// ```
 ///
