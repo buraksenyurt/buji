@@ -1,4 +1,4 @@
-use crate::{Log, LogLevel, Window, NANOS_PER_SECOND};
+use crate::{Log, LogLevel, Window, DEFAULT_FPS, NANOS_PER_SECOND};
 use std::io::Write;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
@@ -29,13 +29,24 @@ pub trait GameObject {
 /// Game Engine, responsible for managing the game loop.
 pub struct GameEngine<W: Write> {
     /// `GameObject` trait's implementation.
-    pub game_object: Box<dyn GameObject>,
+    pub game_object: Option<Box<dyn GameObject>>,
     /// Frames per second value for the game
     pub fps: u32,
     /// Logger object which implements the Write trait
     pub logger: Option<Log<W>>,
     /// Main screen object of the game
     pub window: Window,
+}
+
+impl<W: Write> Default for GameEngine<W> {
+    fn default() -> Self {
+        Self {
+            window: Window::default(),
+            fps: DEFAULT_FPS,
+            logger: None,
+            game_object: None,
+        }
+    }
 }
 
 impl<W: Write> GameEngine<W> {
@@ -64,8 +75,10 @@ impl<W: Write> GameEngine<W> {
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
-                    self.game_object.draw();
-                    state = self.game_object.update();
+                    if let Some(game_object) = &mut self.game_object {
+                        game_object.draw();
+                        state = game_object.update();
+                    }
 
                     if frame_duration > delta {
                         sleep(frame_duration - delta);
@@ -136,10 +149,7 @@ impl<W: Write> GameEngine<W> {
 /// This example demonstrates how to create a simple game using `GameEngineBuilder`.
 /// A custom game object `YourGameObject` is implemented and added to the engine, which is then run at 60 FPS.
 pub struct GameEngineBuilder<W: Write> {
-    game_object: Option<Box<dyn GameObject>>,
-    fps: Option<u32>,
-    logger: Option<Log<W>>,
-    window: Option<Window>,
+    game_engine: GameEngine<W>,
 }
 
 impl<W: Write> GameEngineBuilder<W> {
@@ -151,20 +161,21 @@ impl<W: Write> GameEngineBuilder<W> {
     /// if successful or an error message if something goes wrong.
     pub fn new() -> Result<Self, String> {
         Ok(Self {
-            game_object: None,
-            fps: None,
-            window: None,
-            logger: None,
+            game_engine: GameEngine::<W>::default(),
         })
     }
 
     /// Sets up the game window.
     ///
+    /// # Arguments
+    ///
+    /// * `window` Windows object
+    ///
     /// # Returns
     ///
     /// `Result<Self, String>` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn setup_window(mut self, window: Option<Window>) -> Result<Self, String> {
-        self.window = window;
+    pub fn setup_window(mut self, window: Window) -> Result<Self, String> {
+        self.game_engine.window = window;
         Ok(self)
     }
 
@@ -178,7 +189,7 @@ impl<W: Write> GameEngineBuilder<W> {
     ///
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
     pub fn change_fps(mut self, fps: u32) -> Self {
-        self.fps = Some(fps);
+        self.game_engine.fps = fps;
         self
     }
 
@@ -193,7 +204,7 @@ impl<W: Write> GameEngineBuilder<W> {
     ///
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
     pub fn add_game(mut self, game: Box<dyn GameObject>) -> Self {
-        self.game_object = Some(game);
+        self.game_engine.game_object = Some(game);
         self
     }
 
@@ -207,7 +218,7 @@ impl<W: Write> GameEngineBuilder<W> {
     ///
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
     pub fn add_logger(mut self, logger: Log<W>) -> Self {
-        self.logger = Some(logger);
+        self.game_engine.logger = Some(logger);
         self
     }
 
@@ -218,12 +229,6 @@ impl<W: Write> GameEngineBuilder<W> {
     /// `Result<GameEngine<W>, String>` - Returns a `GameEngine` instance
     /// if successful or an error message if the game object or FPS is not set.
     pub fn build(self) -> Result<GameEngine<W>, String> {
-        let w = self.window.unwrap_or_else(|| Window::default());
-        Ok(GameEngine {
-            game_object: self.game_object.unwrap(),
-            fps: self.fps.unwrap(),
-            window: w,
-            logger: self.logger,
-        })
+        Ok(self.game_engine)
     }
 }
