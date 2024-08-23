@@ -45,6 +45,12 @@ impl MyGame {
     }
 }
 
+impl Default for MyGame {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GameObject for MyGame {
     fn draw(&self) {
         sleep(Duration::from_secs(5));

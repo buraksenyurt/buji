@@ -1,4 +1,4 @@
-use crate::Log;
+use crate::{Log, LogLevel, NANOS_PER_SECOND};
 use std::io::Write;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
@@ -45,17 +45,20 @@ impl<W: Write> GameEngine<W> {
     /// `Result<(), String>` - Returns `Ok(())` if the main loop exists successfully,
     /// or an error message if something goes wrong.
     pub fn run(&mut self) -> Result<(), String> {
+        self.log(LogLevel::Info, "Initializing the game engine");
         let mut state = MainState::Init;
         let mut last_update = Instant::now();
-        let frame_duration = Duration::new(0, 1_000_000_000u32 / self.fps);
+        let frame_duration = Duration::new(0, NANOS_PER_SECOND / self.fps);
 
         loop {
             match state {
                 MainState::Init => {
                     state = MainState::Running;
+                    self.log(LogLevel::Info, "Going to Running state");
                     continue;
                 }
                 MainState::Running => {
+                    self.log(LogLevel::Info, "On Running state");
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
@@ -68,11 +71,26 @@ impl<W: Write> GameEngine<W> {
 
                     last_update = now;
                 }
-                MainState::Exit => break,
+                MainState::Exit => {
+                    self.log(LogLevel::Info, "Exiting from game engine");
+                    break;
+                }
             }
         }
 
         Ok(())
+    }
+
+    /// A function which to simplify internal logging
+    ///
+    /// # Arguments
+    ///
+    /// * `log_level` - The log level (`Error`, `Warn`, `Info`)
+    /// * `message` - The message to be logged.
+    fn log(&mut self, log_level: LogLevel, message: &str) {
+        if let Some(ref mut l) = self.logger {
+            l.write(log_level, message);
+        }
     }
 }
 
@@ -82,7 +100,8 @@ impl<W: Write> GameEngine<W> {
 /// # Example
 ///
 /// ```rust
-/// use buji::{GameObject,MainState,GameEngineBuilder};
+/// use buji::{GameObject,MainState,GameEngineBuilder, Log,LogLevel};
+/// use std::io::stdout;
 ///
 /// struct YourGameObject;
 ///
@@ -98,12 +117,14 @@ impl<W: Write> GameEngine<W> {
 /// }
 ///
 /// fn main() -> Result<(), String> {
+///     let logger = Log::new(stdout());
 ///     let game = Box::new(YourGameObject);
 ///
 ///     let mut engine = GameEngineBuilder::new()?
 ///         .setup_window()?
 ///         .change_fps(60)
 ///         .add_game(game)
+///         .add_logger(logger)
 ///         .build()?;
 ///
 ///     engine.run()
