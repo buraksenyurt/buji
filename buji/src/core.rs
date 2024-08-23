@@ -1,4 +1,4 @@
-use crate::{Log, LogLevel, NANOS_PER_SECOND};
+use crate::{Log, LogLevel, Window, NANOS_PER_SECOND};
 use std::io::Write;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
@@ -34,6 +34,8 @@ pub struct GameEngine<W: Write> {
     pub fps: u32,
     /// Logger object which implements the Write trait
     pub logger: Option<Log<W>>,
+    /// Main screen object of the game
+    pub window: Window,
 }
 
 impl<W: Write> GameEngine<W> {
@@ -100,7 +102,7 @@ impl<W: Write> GameEngine<W> {
 /// # Example
 ///
 /// ```rust
-/// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger};
+/// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger, DEFAULT_FPS};
 /// use std::io::stdout;
 ///
 /// struct YourGameObject;
@@ -121,8 +123,7 @@ impl<W: Write> GameEngine<W> {
 ///     let game = Box::new(YourGameObject);
 ///
 ///     let mut engine = GameEngineBuilder::new()?
-///         .setup_window()?
-///         .change_fps(60)
+///         .change_fps(DEFAULT_FPS)
 ///         .add_game(game)
 ///         .add_logger(logger)
 ///         .build()?;
@@ -138,6 +139,7 @@ pub struct GameEngineBuilder<W: Write> {
     game_object: Option<Box<dyn GameObject>>,
     fps: Option<u32>,
     logger: Option<Log<W>>,
+    window: Option<Window>,
 }
 
 impl<W: Write> GameEngineBuilder<W> {
@@ -151,6 +153,7 @@ impl<W: Write> GameEngineBuilder<W> {
         Ok(Self {
             game_object: None,
             fps: None,
+            window: None,
             logger: None,
         })
     }
@@ -160,7 +163,8 @@ impl<W: Write> GameEngineBuilder<W> {
     /// # Returns
     ///
     /// `Result<Self, String>` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn setup_window(mut self) -> Result<Self, String> {
+    pub fn setup_window(mut self, window: Option<Window>) -> Result<Self, String> {
+        self.window = window;
         Ok(self)
     }
 
@@ -214,9 +218,11 @@ impl<W: Write> GameEngineBuilder<W> {
     /// `Result<GameEngine<W>, String>` - Returns a `GameEngine` instance
     /// if successful or an error message if the game object or FPS is not set.
     pub fn build(self) -> Result<GameEngine<W>, String> {
+        let w = self.window.unwrap_or_else(|| Window::default());
         Ok(GameEngine {
             game_object: self.game_object.unwrap(),
             fps: self.fps.unwrap(),
+            window: w,
             logger: self.logger,
         })
     }

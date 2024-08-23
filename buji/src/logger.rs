@@ -72,6 +72,7 @@ impl<W: Write> Log<W> {
     }
 }
 
+/// Mock instance object of Log struct to use on tests.
 pub struct MockLogger;
 
 impl Write for MockLogger {
