@@ -9,6 +9,8 @@ pub enum MainState {
     Init,
     /// Running state, where the game is actively running.
     Running,
+    /// Runs before the exit signal. Can be use for despawning some resources.
+    PreExit,
     /// Exit state, where the game should stop running.
     Exit,
 }
@@ -72,6 +74,7 @@ impl<W: Write> GameEngine<W> {
                 }
                 MainState::Running => {
                     self.log(LogLevel::Info, "On Running state");
+
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
@@ -85,6 +88,11 @@ impl<W: Write> GameEngine<W> {
                     }
 
                     last_update = now;
+                }
+                MainState::PreExit => {
+                    self.log(LogLevel::Info, "Pre Exit...");
+                    state = MainState::Exit;
+                    continue;
                 }
                 MainState::Exit => {
                     self.log(LogLevel::Info, "Exiting from game engine");
