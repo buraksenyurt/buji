@@ -7,7 +7,11 @@ fn main() -> Result<(), String> {
     let logger = Log::new(stdout());
     let my_game = MyGame::new();
     let mut buji = GameEngineBuilder::new()?
-        //.setup_window(None)?
+        .setup_window(GameWindow::new(
+            Scale2D::new(600, 600),
+            "Arcade Demo",
+            GameColor::from_rgb(BLUE),
+        ))?
         .change_fps(DEFAULT_FPS)
         .add_game(Box::new(my_game))
         .add_logger(logger)
@@ -53,7 +57,7 @@ impl Default for MyGame {
 
 impl GameObject for MyGame {
     fn draw(&self) {
-        sleep(Duration::from_secs(2));
+        sleep(Duration::from_millis(500));
         println!("Draw operations...");
     }
 

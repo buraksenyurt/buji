@@ -1,4 +1,6 @@
-use crate::{Log, LogLevel, Window, DEFAULT_FPS, NANOS_PER_SECOND};
+use crate::{GameWindow, Log, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 use std::io::Write;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
@@ -37,13 +39,13 @@ pub struct GameEngine<W: Write> {
     /// Logger object which implements the Write trait
     pub logger: Option<Log<W>>,
     /// Main screen object of the game
-    pub window: Window,
+    pub window: GameWindow,
 }
 
 impl<W: Write> Default for GameEngine<W> {
     fn default() -> Self {
         Self {
-            window: Window::default(),
+            window: GameWindow::default(),
             fps: DEFAULT_FPS,
             logger: None,
             game_object: None,
@@ -60,12 +62,33 @@ impl<W: Write> GameEngine<W> {
     /// `Result<(), String>` - Returns `Ok(())` if the main loop exists successfully,
     /// or an error message if something goes wrong.
     pub fn run(&mut self) -> Result<(), String> {
+        self.window.init()?;
         self.log(LogLevel::Info, "Initializing the game engine");
+
         let mut state = MainState::Init;
         let mut last_update = Instant::now();
         let frame_duration = Duration::new(0, NANOS_PER_SECOND / self.fps);
 
+        let mut event_pump = self.window.sdl_context.as_ref().unwrap().event_pump()?;
+
         loop {
+            for event in event_pump.poll_iter() {
+                match event {
+                    Event::Quit { .. } => {
+                        self.log(LogLevel::Info, "Quit event received. Exiting...");
+                        state = MainState::PreExit;
+                    }
+                    Event::KeyDown {
+                        keycode: Some(Keycode::Escape),
+                        ..
+                    } => {
+                        self.log(LogLevel::Info, "Escaped key pressed. Exiting...");
+                        state = MainState::PreExit;
+                    }
+                    _ => {}
+                }
+            }
+
             match state {
                 MainState::Init => {
                     state = MainState::Running;
@@ -78,10 +101,14 @@ impl<W: Write> GameEngine<W> {
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
+                    self.window.cleanup();
+
                     if let Some(game_object) = &mut self.game_object {
                         game_object.draw();
                         state = game_object.update();
                     }
+
+                    self.window.present();
 
                     if frame_duration > delta {
                         sleep(frame_duration - delta);
@@ -182,7 +209,7 @@ impl<W: Write> GameEngineBuilder<W> {
     /// # Returns
     ///
     /// `Result<Self, String>` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn setup_window(mut self, window: Window) -> Result<Self, String> {
+    pub fn setup_window(mut self, window: GameWindow) -> Result<Self, String> {
         self.game_engine.window = window;
         Ok(self)
     }
