@@ -123,6 +123,7 @@ pub struct GameWindow {
     pub background_color: GameColor,
     /// SDL2 Context
     pub sdl_context: Option<Sdl>,
+    /// Canvas zone
     pub canvas: Option<Canvas<Window>>,
 }
 

@@ -1,3 +1,4 @@
+use crate::asset_server::AssetServer;
 use crate::{GameWindow, Log, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -40,6 +41,8 @@ pub struct GameEngine<W: Write> {
     pub logger: Option<Log<W>>,
     /// Main screen object of the game
     pub window: GameWindow,
+    /// Asset manager of the game
+    pub asset_server: AssetServer,
 }
 
 impl<W: Write> Default for GameEngine<W> {
@@ -49,6 +52,7 @@ impl<W: Write> Default for GameEngine<W> {
             fps: DEFAULT_FPS,
             logger: None,
             game_object: None,
+            asset_server: AssetServer::default(),
         }
     }
 }

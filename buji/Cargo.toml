@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 sdl2 = "0.37.0"
+image = "0.25.2"
 
 [package.metadata.scripts]
 install_deps = "sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev"

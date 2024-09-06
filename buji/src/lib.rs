@@ -1,8 +1,10 @@
+mod asset_server;
 mod constants;
 mod core;
 mod logger;
 mod ui;
 
+pub use asset_server::*;
 pub use constants::*;
 pub use core::*;
 pub use logger::*;
