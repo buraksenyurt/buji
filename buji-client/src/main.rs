@@ -1,10 +1,13 @@
 use buji::*;
-use std::io::stdout;
+use std::cell::RefCell;
+use std::io::{stdout, Write};
+use std::rc::Rc;
 use std::thread::sleep;
 use std::time::Duration;
 
 fn main() -> Result<(), String> {
-    let logger = Log::new(stdout());
+    let logger = Rc::new(RefCell::new(Log::new(stdout())));
+
     let my_game = MyGame::new();
     let mut buji = GameEngineBuilder::new()?
         .setup_window(GameWindow::new(
@@ -14,9 +17,10 @@ fn main() -> Result<(), String> {
         ))?
         .change_fps(DEFAULT_FPS)
         .add_game(Box::new(my_game))
-        .add_asset_server("towerDefense_tilesheet.png", 32, 32)
-        .add_logger(logger)
+        .add_asset_server("towerDefense_tilesheet.png", 32, 32, 4, 2)
+        .add_logger(Rc::clone(&logger))
         .build()?;
+
     buji.run()
 }
 
@@ -56,8 +60,8 @@ impl Default for MyGame {
     }
 }
 
-impl GameObject for MyGame {
-    fn draw(&self, _asset_server: &AssetServer) {
+impl<W:Write> GameObject<W> for MyGame {
+    fn draw(&self, _asset_server: &AssetServer<W>) {
         sleep(Duration::from_millis(500));
         println!("Draw operations...");
     }

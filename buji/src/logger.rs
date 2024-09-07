@@ -1,6 +1,32 @@
 use std::io::Write;
 
+/// A macro for logging messages using the provided logger if available.
+///
+/// This macro checks if the logger exists
+/// If so writes the log message to the target.
+/// If no logger is provided the macro does nothing.
+///
+/// # Arguments
+///
+/// * `$logger`: The optional logger (`Option<Log<W>>`) where the log message should be written.
+/// * `$log_level`: The log level to use (`LogLevel::Error`, `LogLevel::Warn`, `LogLevel::Info`).
+/// * `$message`: The message to log, as a string slice.
+///
+/// # Panics
+///
+/// This macro does not panic.
+#[macro_export]
+macro_rules! linfo {
+    ($logger:expr,$log_level:expr,$message:expr) => {
+        if let Some(ref mut logger) = $logger {
+            let mut logger_ref = logger.borrow_mut();
+            logger_ref.write($log_level, $message);
+        }
+    };
+}
+
 /// Enum representing the log states.
+#[derive(Clone)]
 pub enum LogLevel {
     /// Error state, shows there is an error
     Error,
