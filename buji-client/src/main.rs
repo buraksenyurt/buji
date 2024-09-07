@@ -60,7 +60,7 @@ impl Default for MyGame {
     }
 }
 
-impl<W:Write> GameObject<W> for MyGame {
+impl<W: Write> GameObject<W> for MyGame {
     fn draw(&self, _asset_server: &AssetServer<W>) {
         sleep(Duration::from_millis(500));
         println!("Draw operations...");

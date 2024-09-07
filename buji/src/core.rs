@@ -159,13 +159,14 @@ impl<W: Write> GameEngine<W> {
 ///
 /// ```rust
 /// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger, DEFAULT_FPS};
-/// use std::io::stdout;
+/// use std::io::{stdout, Write};
 /// use buji::AssetServer;
 /// use std::rc::Rc;
+/// use std::cell::RefCell;
 ///
 /// struct YourGameObject;
 ///
-/// impl<W> GameObject<W> for YourGameObject {
+/// impl<W:Write> GameObject<W> for YourGameObject {
 ///     fn draw(&self,asset_server: &AssetServer<W>) {
 ///         // Draw game objects here
 ///     }
@@ -178,7 +179,7 @@ impl<W: Write> GameEngine<W> {
 ///
 /// fn main() -> Result<(), String> {
 ///
-/// let mut logger = Log::new(MockLogger);
+///     let logger = Rc::new(RefCell::new(Log::new(stdout())));
 ///     let game = Box::new(YourGameObject);
 ///     let mut engine = GameEngineBuilder::new()?
 ///         .change_fps(DEFAULT_FPS)
