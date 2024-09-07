@@ -14,6 +14,7 @@ fn main() -> Result<(), String> {
         ))?
         .change_fps(DEFAULT_FPS)
         .add_game(Box::new(my_game))
+        .add_asset_server("towerDefense_tilesheet.png", 32, 32)
         .add_logger(logger)
         .build()?;
     buji.run()
@@ -56,7 +57,7 @@ impl Default for MyGame {
 }
 
 impl GameObject for MyGame {
-    fn draw(&self) {
+    fn draw(&self, _asset_server: &AssetServer) {
         sleep(Duration::from_millis(500));
         println!("Draw operations...");
     }

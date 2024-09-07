@@ -163,7 +163,7 @@ impl GameWindow {
         let video_subsystem = sdl_context.video()?;
 
         let window = video_subsystem
-            .window(&self.title, self.scale2d.width, self.scale2d.height)
+            .window(self.title, self.scale2d.width, self.scale2d.height)
             .position_centered()
             .build()
             .map_err(|e| e.to_string())?;

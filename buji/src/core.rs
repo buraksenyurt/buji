@@ -3,6 +3,7 @@ use crate::{GameWindow, Log, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::io::Write;
+use std::path::Path;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
@@ -21,7 +22,12 @@ pub enum MainState {
 /// A trait representing a game object. This must be implemented by and game object.
 pub trait GameObject {
     /// Draw operations. Called every frame.
-    fn draw(&self);
+    ///
+    /// # Arguments
+    ///
+    /// * `asset_server` - Reference of asset server
+    ///
+    fn draw(&self, asset_server: &AssetServer);
     /// Update method for game actors. This is called every frame and
     /// should return the next state of main engine.
     ///
@@ -108,7 +114,7 @@ impl<W: Write> GameEngine<W> {
                     self.window.cleanup();
 
                     if let Some(game_object) = &mut self.game_object {
-                        game_object.draw();
+                        game_object.draw(&self.asset_server);
                         state = game_object.update();
                     }
 
@@ -156,11 +162,12 @@ impl<W: Write> GameEngine<W> {
 /// ```rust
 /// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger, DEFAULT_FPS};
 /// use std::io::stdout;
+/// use buji::AssetServer;
 ///
 /// struct YourGameObject;
 ///
 /// impl GameObject for YourGameObject {
-///     fn draw(&self) {
+///     fn draw(&self,asset_server: &AssetServer) {
 ///         // Draw game objects here
 ///     }
 ///
@@ -258,6 +265,34 @@ impl<W: Write> GameEngineBuilder<W> {
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
     pub fn add_logger(mut self, logger: Log<W>) -> Self {
         self.game_engine.logger = Some(logger);
+        self
+    }
+
+    /// Add an asset server to the game engine and load sprite sheet
+    ///
+    /// # Arguments
+    ///
+    /// * `source_path` - The file path for the sprite sheet.
+    ///   This will automatically be placed under the "assets/" directory.
+    /// * `tile_width` - Width of each tile.
+    /// * `tile_height` - Height of each tile.
+    ///
+    /// # Returns
+    ///
+    /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    pub fn add_asset_server(
+        mut self,
+        source_path: &str,
+        tile_width: u32,
+        tile_height: u32,
+    ) -> Self {
+        let base_path = "assets/";
+        let full_path = Path::new(base_path).join(source_path);
+        let full_path_str = full_path.to_str().unwrap();
+        self.game_engine
+            .asset_server
+            .init(full_path_str, tile_width, tile_height,6,2);
+
         self
     }
 
