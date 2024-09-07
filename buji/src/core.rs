@@ -1,11 +1,9 @@
 use crate::asset_server::AssetServer;
-use crate::{linfo, GameWindow, Log, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
+use crate::get_logger;
+use crate::{linfo, GameWindow, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::cell::RefCell;
-use std::io::Write;
 use std::path::Path;
-use std::rc::Rc;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
@@ -22,14 +20,14 @@ pub enum MainState {
 }
 
 /// A trait representing a game object. This must be implemented by and game object.
-pub trait GameObject<W: Write> {
+pub trait GameObject {
     /// Draw operations. Called every frame.
     ///
     /// # Arguments
     ///
     /// * `asset_server` - Reference of asset server
     ///
-    fn draw(&self, asset_server: &AssetServer<W>);
+    fn draw(&self, asset_server: &AssetServer);
     /// Update method for game actors. This is called every frame and
     /// should return the next state of main engine.
     ///
@@ -40,32 +38,29 @@ pub trait GameObject<W: Write> {
 }
 
 /// Game Engine, responsible for managing the game loop.
-pub struct GameEngine<W: Write> {
+pub struct GameEngine {
     /// `GameObject` trait's implementation.
-    pub game_object: Option<Box<dyn GameObject<W>>>,
+    pub game_object: Option<Box<dyn GameObject>>,
     /// Frames per second value for the game
     pub fps: u32,
-    /// Logger object which implements the Write trait
-    pub logger: Option<Rc<RefCell<Log<W>>>>,
     /// Main screen object of the game
     pub window: GameWindow,
     /// Asset manager of the game
-    pub asset_server: AssetServer<W>,
+    pub asset_server: AssetServer,
 }
 
-impl<W: Write> Default for GameEngine<W> {
+impl Default for GameEngine {
     fn default() -> Self {
         Self {
             window: GameWindow::default(),
             fps: DEFAULT_FPS,
-            logger: None,
             game_object: None,
-            asset_server: AssetServer::new(None),
+            asset_server: AssetServer::default(),
         }
     }
 }
 
-impl<W: Write> GameEngine<W> {
+impl GameEngine {
     /// Managing the main loop. The game loop initializes the game, runs the states and updates
     /// the game object on each frame until the `Exit` state is reached.
     ///
@@ -75,7 +70,7 @@ impl<W: Write> GameEngine<W> {
     /// or an error message if something goes wrong.
     pub fn run(&mut self) -> Result<(), String> {
         self.window.init()?;
-        linfo!(self.logger, LogLevel::Info, "Initializing the game engine");
+        linfo!(LogLevel::Info, "Initializing the game engine");
 
         let mut state = MainState::Init;
         let mut last_update = Instant::now();
@@ -87,22 +82,14 @@ impl<W: Write> GameEngine<W> {
             for event in event_pump.poll_iter() {
                 match event {
                     Event::Quit { .. } => {
-                        linfo!(
-                            self.logger,
-                            LogLevel::Info,
-                            "Quit event received. Exiting..."
-                        );
+                        linfo!(LogLevel::Info, "Quit event received. Exiting...");
                         state = MainState::PreExit;
                     }
                     Event::KeyDown {
                         keycode: Some(Keycode::Escape),
                         ..
                     } => {
-                        linfo!(
-                            self.logger,
-                            LogLevel::Info,
-                            "Escaped key pressed. Exiting..."
-                        );
+                        linfo!(LogLevel::Info, "Escaped key pressed. Exiting...");
                         state = MainState::PreExit;
                     }
                     _ => {}
@@ -112,11 +99,11 @@ impl<W: Write> GameEngine<W> {
             match state {
                 MainState::Init => {
                     state = MainState::Running;
-                    linfo!(self.logger, LogLevel::Info, "Going to Running state");
+                    linfo!(LogLevel::Info, "Going to Running state");
                     continue;
                 }
                 MainState::Running => {
-                    linfo!(self.logger, LogLevel::Info, "On Running state");
+                    linfo!(LogLevel::Info, "On Running state");
 
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
@@ -137,12 +124,12 @@ impl<W: Write> GameEngine<W> {
                     last_update = now;
                 }
                 MainState::PreExit => {
-                    linfo!(self.logger, LogLevel::Info, "Pre Exit...");
+                    linfo!(LogLevel::Info, "Pre Exit...");
                     state = MainState::Exit;
                     continue;
                 }
                 MainState::Exit => {
-                    linfo!(self.logger, LogLevel::Info, "Exiting from game engine");
+                    linfo!(LogLevel::Info, "Exiting from game engine");
                     break;
                 }
             }
@@ -158,16 +145,14 @@ impl<W: Write> GameEngine<W> {
 /// # Example
 ///
 /// ```rust
-/// use buji::{GameObject, MainState, GameEngineBuilder, Log, LogLevel, MockLogger, DEFAULT_FPS};
+/// use buji::{GameObject, MainState, GameEngineBuilder, DEFAULT_FPS};
 /// use std::io::{stdout, Write};
 /// use buji::AssetServer;
-/// use std::rc::Rc;
-/// use std::cell::RefCell;
 ///
 /// struct YourGameObject;
 ///
-/// impl<W:Write> GameObject<W> for YourGameObject {
-///     fn draw(&self,asset_server: &AssetServer<W>) {
+/// impl GameObject for YourGameObject {
+///     fn draw(&self,asset_server: &AssetServer) {
 ///         // Draw game objects here
 ///     }
 ///
@@ -179,12 +164,10 @@ impl<W: Write> GameEngine<W> {
 ///
 /// fn main() -> Result<(), String> {
 ///
-///     let logger = Rc::new(RefCell::new(Log::new(stdout())));
 ///     let game = Box::new(YourGameObject);
 ///     let mut engine = GameEngineBuilder::new()?
 ///         .change_fps(DEFAULT_FPS)
 ///         .add_game(game)
-///         .add_logger(Rc::clone(&logger))
 ///         .build()?;
 ///
 ///     Ok(())
@@ -194,11 +177,11 @@ impl<W: Write> GameEngine<W> {
 ///
 /// This example demonstrates how to create a simple game using `GameEngineBuilder`.
 /// A custom game object `YourGameObject` is implemented and added to the engine, which is then run at 60 FPS.
-pub struct GameEngineBuilder<W: Write> {
-    game_engine: GameEngine<W>,
+pub struct GameEngineBuilder {
+    game_engine: GameEngine,
 }
 
-impl<W: Write> GameEngineBuilder<W> {
+impl GameEngineBuilder {
     /// Creates a new `GameEngineBuilder` instance.
     ///
     /// # Returns
@@ -207,7 +190,7 @@ impl<W: Write> GameEngineBuilder<W> {
     /// if successful or an error message if something goes wrong.
     pub fn new() -> Result<Self, String> {
         Ok(Self {
-            game_engine: GameEngine::<W>::default(),
+            game_engine: GameEngine::default(),
         })
     }
 
@@ -249,22 +232,8 @@ impl<W: Write> GameEngineBuilder<W> {
     /// # Returns
     ///
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn add_game(mut self, game: Box<dyn GameObject<W>>) -> Self {
+    pub fn add_game(mut self, game: Box<dyn GameObject>) -> Self {
         self.game_engine.game_object = Some(game);
-        self
-    }
-
-    /// Add a logger to the game engine
-    ///
-    /// # Arguments
-    ///
-    /// * `logger` - An optional logger object that implements the `Write` trait.
-    ///
-    /// # Returns
-    ///
-    /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn add_logger(mut self, logger: Rc<RefCell<Log<W>>>) -> Self {
-        self.game_engine.logger = Some(logger);
         self
     }
 
@@ -292,11 +261,9 @@ impl<W: Write> GameEngineBuilder<W> {
         let full_path = Path::new(base_path).join(source_path);
         let full_path_str = full_path.to_str().unwrap();
 
-        if let Some(ref logger) = self.game_engine.logger {
-            let mut asset_server = AssetServer::new(Some(Rc::clone(logger)));
-            asset_server.init(full_path_str, tile_width, tile_height, columns, rows);
-            self.game_engine.asset_server = asset_server;
-        }
+        self.game_engine
+            .asset_server
+            .init(full_path_str, tile_width, tile_height, columns, rows);
 
         self
     }
@@ -307,7 +274,7 @@ impl<W: Write> GameEngineBuilder<W> {
     ///
     /// `Result<GameEngine<W>, String>` - Returns a `GameEngine` instance
     /// if successful or an error message if the game object or FPS is not set.
-    pub fn build(self) -> Result<GameEngine<W>, String> {
+    pub fn build(self) -> Result<GameEngine, String> {
         Ok(self.game_engine)
     }
 }

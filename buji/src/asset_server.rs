@@ -1,31 +1,17 @@
-use crate::{Log, LogLevel};
+use crate::get_logger;
+use crate::{linfo, LogLevel};
 use image::*;
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::io::{Cursor, Write};
-use std::rc::Rc;
+use std::io::Cursor;
 
 /// A simple asset server struct for handling sprite sheet loading.
-pub struct AssetServer<W: Write> {
+#[derive(Default)]
+pub struct AssetServer {
     /// Vector based tile map of sprite sheet
     pub tile_map: HashMap<usize, Vec<u8>>,
-    pub logger: Option<Rc<RefCell<Log<W>>>>,
 }
 
-impl<W: Write> AssetServer<W> {
-    /// Creates a new AssetServer instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `logger` - An optional logger to log events during tile sheet loading.
-    ///
-    pub fn new(logger: Option<Rc<RefCell<Log<W>>>>) -> Self {
-        Self {
-            tile_map: HashMap::new(),
-            logger,
-        }
-    }
-
+impl AssetServer {
     /// Loads a sprite sheet from the specified source path and splits it into individual tiles.
     ///
     /// # Arguments
@@ -47,11 +33,8 @@ impl<W: Write> AssetServer<W> {
         columns: u32,
         rows: u32,
     ) {
-        if let Some(logger) = &self.logger {
-            let mut logger_ref = logger.borrow_mut();
-            logger_ref.write(LogLevel::Info, "Initializing AssetServer");
-            logger_ref.write(LogLevel::Info, &format!("source_path: {}", source_path));
-        }
+        linfo!(LogLevel::Info, "Initializing AssetServer");
+        linfo!(LogLevel::Info, &format!("source_path: {}", source_path));
 
         let img = open(source_path).expect("Failed to open image");
         let (w, h) = img.dimensions();

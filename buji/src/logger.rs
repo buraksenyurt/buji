@@ -1,4 +1,20 @@
+use lazy_static::lazy_static;
 use std::io::Write;
+use std::sync::{Arc, Mutex};
+
+lazy_static! {
+    static ref LOGGER: Mutex<Option<Arc<Mutex<Log<std::io::Stdout>>>>> = Mutex::new(None);
+}
+
+pub fn set_logger(logger: Arc<Mutex<Log<std::io::Stdout>>>) {
+    let mut global_logger = LOGGER.lock().unwrap();
+    *global_logger = Some(logger);
+}
+
+pub fn get_logger() -> Option<Arc<Mutex<Log<std::io::Stdout>>>> {
+    let global_logger = LOGGER.lock().unwrap();
+    global_logger.clone()
+}
 
 /// A macro for logging messages using the provided logger if available.
 ///
@@ -8,7 +24,6 @@ use std::io::Write;
 ///
 /// # Arguments
 ///
-/// * `$logger`: The optional logger (`Option<Log<W>>`) where the log message should be written.
 /// * `$log_level`: The log level to use (`LogLevel::Error`, `LogLevel::Warn`, `LogLevel::Info`).
 /// * `$message`: The message to log, as a string slice.
 ///
@@ -17,9 +32,9 @@ use std::io::Write;
 /// This macro does not panic.
 #[macro_export]
 macro_rules! linfo {
-    ($logger:expr,$log_level:expr,$message:expr) => {
-        if let Some(ref mut logger) = $logger {
-            let mut logger_ref = logger.borrow_mut();
+    ($log_level:expr,$message:expr) => {
+        if let Some(logger) = get_logger() {
+            let mut logger_ref = logger.lock().unwrap();
             logger_ref.write($log_level, $message);
         }
     };
