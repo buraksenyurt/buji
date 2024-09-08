@@ -60,13 +60,16 @@ impl AssetServer {
         }
     }
 
-    /// Loads a sprite sheet from the hash store
+    /// Loads a texture from the tile map store
     ///
     /// # Arguments
     ///
-    /// * `index` - Index number of sprite
+    /// * `index` - Index number of texture
     ///
-    pub fn get_sprite(&self, index: usize) -> Option<&Vec<u8>> {
+    /// # Returns
+    ///
+    /// `Option<Vec<u8>>` - Returns byte array of texture
+    pub fn get_texture(&self, index: usize) -> Option<&Vec<u8>> {
         self.tile_map.get(&index)
     }
 }

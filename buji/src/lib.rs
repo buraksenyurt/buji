@@ -3,6 +3,7 @@ mod constants;
 mod core;
 mod logger;
 mod ui;
+mod world;
 
 pub use asset_server::*;
 pub use constants::*;

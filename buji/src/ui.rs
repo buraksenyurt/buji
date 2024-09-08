@@ -222,3 +222,28 @@ impl Default for GameWindow {
         }
     }
 }
+
+/// 2D Positions of something
+#[derive(Default)]
+pub struct Position {
+    /// x origin value
+    pub x: i32,
+    /// y origin value
+    pub y: i32,
+}
+
+impl Position {
+    /// Create a new 2D position instance
+    ///
+    /// # Arguments
+    ///
+    /// `x` - value of x origin
+    /// `y` - value of y origin
+    ///
+    /// # Returns
+    ///
+    /// `Position` - a new instance of x,y origin
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
