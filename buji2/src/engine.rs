@@ -1,6 +1,7 @@
 extern crate sdl2;
 
 use crate::states::EngineState;
+use crate::Game;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -18,6 +19,7 @@ pub struct GameEngine {
     fps: u32,
     background_color: Color,
     sdl_context: sdl2::Sdl,
+    game: Box<dyn Game>,
 }
 
 impl GameEngine {
@@ -58,6 +60,9 @@ impl GameEngine {
 
                     self.canvas.set_draw_color(self.background_color);
                     self.canvas.clear();
+
+                    self.game.draw();
+                    state = self.game.update();
 
                     self.canvas.present();
 
@@ -102,12 +107,8 @@ impl Default for GameEngineBuilder {
 }
 
 impl GameEngineBuilder {
-    pub fn title(mut self, title: &str) -> Self {
+    pub fn set_window(mut self, title: &str, width: u32, height: u32) -> Self {
         self.title = title.to_string();
-        self
-    }
-
-    pub fn window_size(mut self, width: u32, height: u32) -> Self {
         self.width = width;
         self.height = height;
         self
@@ -123,7 +124,7 @@ impl GameEngineBuilder {
         self
     }
 
-    pub fn build(self) -> GameEngine {
+    pub fn build(self, game: Box<dyn Game>) -> GameEngine {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
         let window = video_subsystem
@@ -141,6 +142,7 @@ impl GameEngineBuilder {
             fps: self.fps,
             background_color: self.background_color,
             sdl_context,
+            game,
         }
     }
 }
