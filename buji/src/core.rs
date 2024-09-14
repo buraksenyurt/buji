@@ -1,6 +1,7 @@
 use crate::asset_server::AssetServer;
 use crate::world::World;
-use crate::{linfo, GameWindow, LogController, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
+use crate::{GameWindow, DEFAULT_FPS, NANOS_PER_SECOND};
+use logy::*;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::path::Path;

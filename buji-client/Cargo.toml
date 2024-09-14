@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 buji = { path = "../buji"}
+logy = {path="../logy"}

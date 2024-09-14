@@ -1,5 +1,5 @@
-use crate::{linfo, LogController, LogLevel};
 use image::*;
+use logy::*;
 use std::collections::HashMap;
 use std::io::Cursor;
 

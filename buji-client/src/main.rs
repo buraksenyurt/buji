@@ -1,6 +1,7 @@
 use buji::*;
 use std::thread::sleep;
 use std::time::Duration;
+use logy::LogController;
 
 fn main() -> Result<(), String> {
     LogController::init_logger();

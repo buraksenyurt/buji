@@ -6,7 +6,7 @@ fn main() -> Result<(), String> {
     let my_game = MyGame::new();
 
     let mut game_engine = GameEngine::builder()
-        .set_window("Tower Defense Game",800,400)
+        .set_window("Tower Defense Game", 800, 400)
         .fps(30)
         .background_color(100, 100, 150)
         .build(Box::new(my_game));

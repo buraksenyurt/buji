@@ -1,4 +1,4 @@
-use crate::{linfo, LogController, LogLevel};
+use logy::*;
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
