@@ -1,7 +1,11 @@
+mod actor;
+mod components;
 mod engine;
-mod game;
 mod states;
+mod world;
 
+pub use actor::*;
+pub use components::*;
 pub use engine::*;
-pub use game::*;
 pub use states::*;
+pub use world::*;

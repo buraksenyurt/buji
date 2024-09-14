@@ -1,7 +1,7 @@
 extern crate sdl2;
 
 use crate::states::EngineState;
-use crate::Game;
+use crate::world::World;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -19,7 +19,7 @@ pub struct GameEngine {
     fps: u32,
     background_color: Color,
     sdl_context: sdl2::Sdl,
-    game: Box<dyn Game>,
+    pub world: World,
 }
 
 impl GameEngine {
@@ -58,12 +58,14 @@ impl GameEngine {
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
+                    if let Some(new_state) = self.world.update_all() {
+                        state = new_state;
+                    }
+
                     self.canvas.set_draw_color(self.background_color);
                     self.canvas.clear();
 
-                    self.game.draw();
-                    state = self.game.update();
-
+                    self.world.draw_all();
                     self.canvas.present();
 
                     if frame_duration > delta {
@@ -124,7 +126,7 @@ impl GameEngineBuilder {
         self
     }
 
-    pub fn build(self, game: Box<dyn Game>) -> GameEngine {
+    pub fn build(self) -> GameEngine {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
         let window = video_subsystem
@@ -142,7 +144,7 @@ impl GameEngineBuilder {
             fps: self.fps,
             background_color: self.background_color,
             sdl_context,
-            game,
+            world: World::default(),
         }
     }
 }

@@ -1,15 +1,17 @@
-use buji2::{EngineState, Game, GameEngine};
+use buji2::*;
 use std::thread::sleep;
 use std::time::Duration;
 
 fn main() -> Result<(), String> {
-    let my_game = MyGame::new();
-
     let mut game_engine = GameEngine::builder()
         .set_window("Tower Defense Game", 800, 400)
         .fps(30)
         .background_color(100, 100, 150)
-        .build(Box::new(my_game));
+        .build();
+
+    game_engine
+        .world
+        .add_actor(Box::new(Player::new(1, "Legolas".to_string())));
 
     game_engine.run()?;
 
@@ -32,34 +34,15 @@ impl Player {
     }
 }
 
-pub struct MyGame {
-    pub players: Vec<Player>,
-    pub level: u8,
-}
-
-impl MyGame {
-    pub fn new() -> Self {
-        Self {
-            players: Vec::new(),
-            level: 0,
-        }
-    }
-}
-
-impl Default for MyGame {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Game for MyGame {
+impl Actor for Player {
     fn draw(&self) {
         sleep(Duration::from_millis(500));
-        println!("Draw operations...");
+        println!("Player {}-{} drawn", self.id, self.nick_name);
     }
 
-    fn update(&mut self) -> EngineState {
-        println!("Update operations...");
-        EngineState::Running
+    fn update(&self) -> Option<EngineState> {
+        sleep(Duration::from_millis(500));
+        println!("Player {}-{} update", self.id, self.nick_name);
+        None
     }
 }

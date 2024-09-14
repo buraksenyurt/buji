@@ -3,7 +3,6 @@ mod log_controller;
 mod log_level;
 mod mock;
 
-pub use log::*;
 pub use log_controller::*;
 pub use log_level::*;
 pub use mock::*;
