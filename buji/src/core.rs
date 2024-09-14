@@ -168,7 +168,7 @@ impl GameEngine {
 ///
 /// fn main() -> Result<(), String> {
 ///
-///     let game = Box::new(YourGameObject);
+///     let game = YourGameObject;
 ///     let mut engine = GameEngineBuilder::new()?
 ///         .change_fps(DEFAULT_FPS)
 ///         .add_game(game)
