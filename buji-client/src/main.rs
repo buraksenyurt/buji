@@ -14,7 +14,7 @@ fn main() -> Result<(), String> {
             GameColor::from_rgb(BLUE),
         ))?
         .change_fps(DEFAULT_FPS)
-        .add_game(Box::new(my_game))
+        .add_game(my_game)
         .add_asset_server("towerDefense_tilesheet.png", 32, 32, 4, 2)
         .build()?;
 

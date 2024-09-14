@@ -236,8 +236,8 @@ impl GameEngineBuilder {
     /// # Returns
     ///
     /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
-    pub fn add_game(mut self, game: Box<dyn GameObject>) -> Self {
-        self.game_engine.game_object = Some(game);
+    pub fn add_game<T: GameObject + 'static>(mut self, game: T) -> Self {
+        self.game_engine.game_object = Some(Box::new(game));
         self
     }
 

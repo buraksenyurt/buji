@@ -11,8 +11,8 @@ impl World {
         Self { actors: Vec::new() }
     }
 
-    pub fn add_actor(&mut self, actor: Box<dyn Actor>) {
-        self.actors.push(actor);
+    pub fn add_actor<T: Actor + 'static>(&mut self, actor: T) {
+        self.actors.push(Box::new(actor));
     }
 
     pub fn draw_all(&self) {

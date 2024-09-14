@@ -11,7 +11,7 @@ fn main() -> Result<(), String> {
 
     game_engine
         .world
-        .add_actor(Box::new(Player::new(1, "Legolas".to_string())));
+        .add_actor(Player::new(1, "Legolas".to_string()));
 
     game_engine.run()?;
 
