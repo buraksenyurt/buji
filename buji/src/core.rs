@@ -1,6 +1,6 @@
 use crate::asset_server::AssetServer;
-use crate::get_logger;
-use crate::{linfo, GameWindow, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
+use crate::world::World;
+use crate::{linfo, GameWindow, LogController, LogLevel, DEFAULT_FPS, NANOS_PER_SECOND};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::path::Path;
@@ -47,6 +47,8 @@ pub struct GameEngine {
     pub window: GameWindow,
     /// Asset manager of the game
     pub asset_server: AssetServer,
+    /// World object to manage all game figures
+    pub world: World<'static>,
 }
 
 impl Default for GameEngine {
@@ -56,6 +58,7 @@ impl Default for GameEngine {
             fps: DEFAULT_FPS,
             game_object: None,
             asset_server: AssetServer::default(),
+            world: World::default(),
         }
     }
 }
@@ -82,14 +85,14 @@ impl GameEngine {
             for event in event_pump.poll_iter() {
                 match event {
                     Event::Quit { .. } => {
-                        linfo!(LogLevel::Info, "Quit event received. Exiting...");
+                        linfo!(LogLevel::Warn, "Quit event received. Exiting...");
                         state = MainState::PreExit;
                     }
                     Event::KeyDown {
                         keycode: Some(Keycode::Escape),
                         ..
                     } => {
-                        linfo!(LogLevel::Info, "Escaped key pressed. Exiting...");
+                        linfo!(LogLevel::Warn, "Escaped key pressed. Exiting...");
                         state = MainState::PreExit;
                     }
                     _ => {}
@@ -124,12 +127,12 @@ impl GameEngine {
                     last_update = now;
                 }
                 MainState::PreExit => {
-                    linfo!(LogLevel::Info, "Pre Exit...");
+                    linfo!(LogLevel::Warn, "Pre Exit...");
                     state = MainState::Exit;
                     continue;
                 }
                 MainState::Exit => {
-                    linfo!(LogLevel::Info, "Exiting from game engine");
+                    linfo!(LogLevel::Warn, "Exiting from game engine");
                     break;
                 }
             }

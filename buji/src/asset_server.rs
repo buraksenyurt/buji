@@ -1,5 +1,4 @@
-use crate::get_logger;
-use crate::{linfo, LogLevel};
+use crate::{linfo, LogController, LogLevel};
 use image::*;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -34,7 +33,7 @@ impl AssetServer {
         rows: u32,
     ) {
         linfo!(LogLevel::Info, "Initializing AssetServer");
-        linfo!(LogLevel::Info, &format!("source_path: {}", source_path));
+        linfo!(LogLevel::Warn, &format!("source_path: {}", source_path));
 
         let img = open(source_path).expect("Failed to open image");
         let (w, h) = img.dimensions();

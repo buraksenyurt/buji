@@ -1,11 +1,9 @@
 use buji::*;
-use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
 
 fn main() -> Result<(), String> {
-    let logger = Arc::new(Mutex::new(Log::new(std::io::stdout())));
-    set_logger(logger);
+    LogController::init_logger();
 
     let my_game = MyGame::new();
     let mut buji = GameEngineBuilder::new()?

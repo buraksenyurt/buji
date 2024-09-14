@@ -1,4 +1,4 @@
-use crate::{Position, Scale2D};
+use crate::{linfo, LogController, LogLevel, Position, Scale2D};
 use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture};
 use sdl2::video::Window;
@@ -51,6 +51,7 @@ impl<'a> World<'a> {
         if let Some(figure) = self.figures.get_mut(figure_id as usize) {
             figure.texture = Some(texture);
         } else {
+            linfo!(LogLevel::Warn, "Tried to load an invalid texture");
             panic!("Figure with ID {} does not exist", figure_id);
         }
     }

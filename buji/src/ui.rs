@@ -1,3 +1,4 @@
+use crate::{linfo, LogController, LogLevel};
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
@@ -23,7 +24,7 @@ impl GameColor {
     /// - `red`: Red value (0..255)
     /// - `blue` : Blue value (0..255)
     /// - `green` : Green value (0..255)
-    /// - `alhpa` : Alpha value (0..100) %
+    /// - `alpha` : Alpha value (0..100) %
     pub fn new(red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         Self {
             red,
@@ -175,6 +176,8 @@ impl GameWindow {
 
         self.sdl_context = Some(sdl_context);
         self.canvas = Some(canvas);
+
+        linfo!(LogLevel::Warn, "Video sub system is ready");
 
         Ok(())
     }
