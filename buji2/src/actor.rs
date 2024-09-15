@@ -1,17 +1,22 @@
-use crate::{EngineState, Position};
+use crate::{EngineState, Position, Rotation, ScaleFactor};
 
 pub trait Actor {
     fn draw(&self, context: &ActorContext);
     fn update(&self, context: &mut ActorContext) -> Option<EngineState>;
 }
-#[derive(Debug)]
+#[derive(Debug,Default)]
 pub struct ActorContext {
     pub position: Position,
-    pub scale: f32,
+    pub scale: ScaleFactor,
+    pub rotation: Rotation,
 }
 
 impl ActorContext {
-    pub fn new(position: Position, scale: f32) -> Self {
-        Self { position, scale }
+    pub fn new(position: Position, scale: ScaleFactor, rotation: Rotation) -> Self {
+        Self {
+            position,
+            scale,
+            rotation,
+        }
     }
 }

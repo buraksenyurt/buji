@@ -9,7 +9,6 @@ pub use mock::*;
 
 use crate::log::Log;
 use lazy_static::lazy_static;
-use std::io::Write;
 use std::sync::{Arc, Mutex};
 
 lazy_static! {
