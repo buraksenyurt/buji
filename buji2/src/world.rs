@@ -1,9 +1,13 @@
 use crate::actor::Actor;
-use crate::EngineState;
+use crate::ActorContext;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type ActorWithContext = (Box<dyn Actor>, Rc<RefCell<ActorContext>>);
 
 #[derive(Default)]
 pub struct World {
-    actors: Vec<Box<dyn Actor>>,
+    pub actors: Vec<ActorWithContext>,
 }
 
 impl World {
@@ -11,22 +15,8 @@ impl World {
         Self { actors: Vec::new() }
     }
 
-    pub fn add_actor<T: Actor + 'static>(&mut self, actor: T) {
-        self.actors.push(Box::new(actor));
-    }
-
-    pub fn draw_all(&self) {
-        for actor in &self.actors {
-            actor.draw();
-        }
-    }
-
-    pub fn update_all(&mut self) -> Option<EngineState> {
-        for actor in &mut self.actors {
-            if let Some(state) = actor.update() {
-                return Some(state);
-            }
-        }
-        None
+    pub fn add_actor<T: Actor + 'static>(&mut self, actor: T, actor_context: ActorContext) {
+        let ac = Rc::new(RefCell::new(actor_context));
+        self.actors.push((Box::new(actor), ac));
     }
 }

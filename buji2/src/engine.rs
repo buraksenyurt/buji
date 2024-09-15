@@ -58,14 +58,16 @@ impl GameEngine {
                     let now = Instant::now();
                     let delta = now.duration_since(last_update);
 
-                    if let Some(new_state) = self.world.update_all() {
-                        state = new_state;
-                    }
-
                     self.canvas.set_draw_color(self.background_color);
                     self.canvas.clear();
 
-                    self.world.draw_all();
+                    for (actor, actor_context) in &self.world.actors {
+                        if let Some(new_state) = actor.update(&mut actor_context.borrow_mut()) {
+                            state = new_state;
+                        }
+                        actor.draw(&actor_context.borrow());
+                    }
+
                     self.canvas.present();
 
                     if frame_duration > delta {

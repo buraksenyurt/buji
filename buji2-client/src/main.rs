@@ -9,9 +9,10 @@ fn main() -> Result<(), String> {
         .background_color(100, 100, 150)
         .build();
 
-    game_engine
-        .world
-        .add_actor(Player::new(1, "Legolas".to_string()));
+    game_engine.world.add_actor(
+        Player::new(1, "Legolas".to_string()),
+        ActorContext::new(Position::new(10, 10), 1.5),
+    );
 
     game_engine.run()?;
 
@@ -35,12 +36,14 @@ impl Player {
 }
 
 impl Actor for Player {
-    fn draw(&self) {
+    fn draw(&self, context: &ActorContext) {
         sleep(Duration::from_millis(500));
-        println!("Player {}-{} drawn", self.id, self.nick_name);
+        println!("Player {}-{} drawn. {:?}", self.id, self.nick_name, context);
     }
 
-    fn update(&self) -> Option<EngineState> {
+    fn update(&self, context: &mut ActorContext) -> Option<EngineState> {
+        context.position.x += 1;
+        context.position.y += 1;
         sleep(Duration::from_millis(500));
         println!("Player {}-{} update", self.id, self.nick_name);
         None
