@@ -1,6 +1,6 @@
 use buji2::*;
-use std::thread::sleep;
-use std::time::Duration;
+// use std::thread::sleep;
+// use std::time::Duration;
 
 fn main() -> Result<(), String> {
     let mut game_engine = GameEngine::builder()
@@ -11,7 +11,12 @@ fn main() -> Result<(), String> {
 
     game_engine.world.add_actor(
         Player::new(1, "Legolas".to_string()),
-        ActorContext::new(Position::new(10, 10), ScaleFactor(1.5), Rotation::ZERO),
+        ActorContext::new(
+            Position::new(200, 0),
+            ScaleFactor(2.),
+            Rotation::ZERO,
+            "../assets/hero.png".to_string(),
+        ),
     );
 
     game_engine.world.add_actor(
@@ -20,7 +25,22 @@ fn main() -> Result<(), String> {
             power: 100.,
         },
         ActorContext {
+            position: Position::new(500, 0),
+            scale: ScaleFactor(2.),
+            image_path: "../assets/tile.png".to_string(),
+            ..Default::default()
+        },
+    );
+
+    game_engine.world.add_actor(
+        Tower {
+            name: "Gate West North".to_string(),
+            power: 100.,
+        },
+        ActorContext {
             position: Position::new(100, 0),
+            scale: ScaleFactor(2.),
+            image_path: "../assets/tile.png".to_string(),
             ..Default::default()
         },
     );
@@ -48,14 +68,13 @@ impl Player {
 
 impl Actor for Player {
     fn draw(&self, context: &ActorContext) {
-        sleep(Duration::from_millis(1000));
         println!("Player {}-{} drawn. {:?}", self.id, self.nick_name, context);
     }
 
     fn update(&self, context: &mut ActorContext) -> Option<EngineState> {
-        context.position.x += 1;
-        context.position.y += 1;
-        sleep(Duration::from_millis(1000));
+        if context.position.y < 200 {
+            context.position.y += 1;
+        }
         println!("Player {}-{} update", self.id, self.nick_name);
         None
     }

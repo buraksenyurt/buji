@@ -2,9 +2,12 @@ extern crate sdl2;
 
 use crate::states::EngineState;
 use crate::world::World;
+use crate::ActorContext;
 use sdl2::event::Event;
+use sdl2::image::LoadTexture;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
+use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 use std::thread::sleep;
@@ -65,6 +68,15 @@ impl GameEngine {
                         if let Some(new_state) = actor.update(&mut actor_context.borrow_mut()) {
                             state = new_state;
                         }
+
+                        if let Err(e) = Self::draw_actor(
+                            &mut self.canvas,
+                            &self.texture_creator,
+                            &actor_context.borrow(),
+                        ) {
+                            eprintln!("Failed to draw actor: {}", e);
+                        }
+
                         actor.draw(&actor_context.borrow());
                     }
 
@@ -85,6 +97,27 @@ impl GameEngine {
                 }
             }
         }
+
+        Ok(())
+    }
+
+    pub fn draw_actor(
+        canvas: &mut WindowCanvas,
+        texture_creator: &TextureCreator<WindowContext>,
+        actor: &ActorContext,
+    ) -> Result<(), String> {
+        // Daha önceden yüklenmiş texture'lar için cache mekanizması kullanalım
+        let texture = texture_creator.load_texture(&actor.image_path)?;
+
+        let scale_factor = actor.scale.0;
+        let (width, height) = (texture.query().width, texture.query().height);
+        let scaled_width = (width as f32 * scale_factor) as u32;
+        let scaled_height = (height as f32 * scale_factor) as u32;
+
+        let position = &actor.position;
+        let target_rect = Rect::new(position.x, position.y, scaled_width, scaled_height);
+
+        canvas.copy_ex(&texture, None, Some(target_rect), 0.0, None, false, false)?;
 
         Ok(())
     }
