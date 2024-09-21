@@ -2,9 +2,8 @@ extern crate sdl2;
 
 use crate::states::EngineState;
 use crate::world::World;
-use crate::ActorContext;
+use crate::{ActorContext, AssetStore};
 use sdl2::event::Event;
-use sdl2::image::LoadTexture;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
@@ -18,6 +17,7 @@ const FPS: u32 = 60;
 
 pub struct GameEngine {
     canvas: WindowCanvas,
+    asset_store: AssetStore,
     texture_creator: TextureCreator<WindowContext>,
     fps: u32,
     background_color: Color,
@@ -71,6 +71,7 @@ impl GameEngine {
 
                         if let Err(e) = Self::draw_actor(
                             &mut self.canvas,
+                            &mut self.asset_store,
                             &self.texture_creator,
                             &actor_context.borrow(),
                         ) {
@@ -103,11 +104,24 @@ impl GameEngine {
 
     pub fn draw_actor(
         canvas: &mut WindowCanvas,
+        asset_store: &mut AssetStore,
         texture_creator: &TextureCreator<WindowContext>,
         actor: &ActorContext,
     ) -> Result<(), String> {
-        // Daha önceden yüklenmiş texture'lar için cache mekanizması kullanalım
-        let texture = texture_creator.load_texture(&actor.image_path)?;
+        let image_data = asset_store.load_or_insert(actor.id, &actor.image_path)?;
+        let mut image_data_mut = image_data.to_vec();
+        let surface = sdl2::surface::Surface::from_data(
+            image_data_mut.as_mut_slice(),
+            64,
+            64,
+            64 * 3,
+            sdl2::pixels::PixelFormatEnum::RGB24,
+        )
+        .map_err(|e| e.to_string())?;
+
+        let texture = texture_creator
+            .create_texture_from_surface(&surface)
+            .map_err(|e| e.to_string())?;
 
         let scale_factor = actor.scale.0;
         let (width, height) = (texture.query().width, texture.query().height);
@@ -180,6 +194,7 @@ impl GameEngineBuilder {
             background_color: self.background_color,
             sdl_context,
             world: World::default(),
+            asset_store: AssetStore::default(),
         }
     }
 }

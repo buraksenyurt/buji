@@ -6,6 +6,7 @@ pub trait Actor {
 }
 #[derive(Debug, Default)]
 pub struct ActorContext {
+    pub id: u32,
     pub position: Position,
     pub scale: ScaleFactor,
     pub rotation: Rotation,
@@ -14,12 +15,14 @@ pub struct ActorContext {
 
 impl ActorContext {
     pub fn new(
+        id: u32,
         position: Position,
         scale: ScaleFactor,
         rotation: Rotation,
         image_path: String,
     ) -> Self {
         Self {
+            id,
             position,
             scale,
             rotation,

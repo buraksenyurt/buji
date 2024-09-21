@@ -12,6 +12,7 @@ fn main() -> Result<(), String> {
     game_engine.world.add_actor(
         Player::new(1, "Legolas".to_string()),
         ActorContext::new(
+            1,
             Position::new(200, 0),
             ScaleFactor(2.),
             Rotation::ZERO,
@@ -25,6 +26,7 @@ fn main() -> Result<(), String> {
             power: 100.,
         },
         ActorContext {
+            id: 2,
             position: Position::new(500, 0),
             scale: ScaleFactor(2.),
             image_path: "../assets/tile.png".to_string(),
@@ -38,6 +40,7 @@ fn main() -> Result<(), String> {
             power: 100.,
         },
         ActorContext {
+            id: 3,
             position: Position::new(100, 0),
             scale: ScaleFactor(2.),
             image_path: "../assets/tile.png".to_string(),
