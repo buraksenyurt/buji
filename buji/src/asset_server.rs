@@ -11,19 +11,21 @@ pub struct AssetServer {
 }
 
 impl AssetServer {
-    /// Loads a sprite sheet from the specified source path and splits it into individual tiles.
-    ///
-    /// # Arguments
-    ///
-    /// * `source_path` - A string slice that holds the path of the image file to be loaded.
-    /// * `tile_width` - The width of each tile in pixels.
-    /// * `tile_height` - The height of each tile in pixels.
-    /// * `columns` - The number of columns to load.
-    /// * `rows` - The number of rows to load.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if the image cannot be opened or if there is an error writing the tile data.
+    /**
+    Loads a sprite sheet from the specified source path and splits it into individual tiles.
+
+    # Arguments
+
+    * `source_path` - A string slice that holds the path of the image file to be loaded.
+    * `tile_width` - The width of each tile in pixels.
+    * `tile_height` - The height of each tile in pixels.
+    * `columns` - The number of columns to load.
+    * `rows` - The number of rows to load.
+
+    # Panics
+
+    This function will panic if the image cannot be opened or if there is an error writing the tile data.
+    */
     pub fn init(
         &mut self,
         source_path: &str,
@@ -59,15 +61,18 @@ impl AssetServer {
         }
     }
 
-    /// Loads a texture from the tile map store
-    ///
-    /// # Arguments
-    ///
-    /// * `index` - Index number of texture
-    ///
-    /// # Returns
-    ///
-    /// `Option<Vec<u8>>` - Returns byte array of texture
+    /**
+
+    Loads a texture from the tile map store
+
+    # Arguments
+
+    * `index` - Index number of texture
+
+    # Returns
+
+    `Option<Vec<u8>>` - Returns byte array of texture
+    */
     pub fn get_texture(&self, index: usize) -> Option<&Vec<u8>> {
         self.tile_map.get(&index)
     }

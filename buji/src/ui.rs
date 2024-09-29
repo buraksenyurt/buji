@@ -17,14 +17,16 @@ pub struct GameColor {
 }
 
 impl GameColor {
-    /// Initialize a Color from RGBA values
-    ///
-    /// # Parameters
-    ///
-    /// - `red`: Red value (0..255)
-    /// - `blue` : Blue value (0..255)
-    /// - `green` : Green value (0..255)
-    /// - `alpha` : Alpha value (0..100) %
+    /**
+    Initialize a Color from RGBA values
+
+    # Parameters
+
+    - `red`: Red value (0..255)
+    - `blue` : Blue value (0..255)
+    - `green` : Green value (0..255)
+    - `alpha` : Alpha value (0..100) %
+    */
     pub fn new(red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         Self {
             red,
@@ -34,15 +36,17 @@ impl GameColor {
         }
     }
 
-    /// Creates a new `GameColor` from an RGB array with default Alpha value (100%)
-    ///
-    /// # Parameters
-    ///
-    /// - `codes`: An array containing the red, green, and blue values.
-    ///
-    /// # Returns
-    ///
-    /// A new `Color` instance.
+    /**
+    Creates a new `GameColor` from an RGB array with default Alpha value (100%)
+
+    # Parameters
+
+    - `codes`: An array containing the red, green, and blue values.
+
+    # Returns
+
+    A new `Color` instance.
+    */
     pub fn from_rgb(codes: [u8; 3]) -> Self {
         Self {
             red: codes[0],
@@ -66,11 +70,13 @@ impl Default for GameColor {
 }
 
 impl From<&GameColor> for Color {
-    /// Convert GameColor instance to SDL2 Color instance
-    ///
-    /// # Parameters
-    ///
-    /// - `color`: Instance of GameColor
+    /**
+    Convert GameColor instance to SDL2 Color instance
+
+    # Parameters
+
+    - `color`: Instance of GameColor
+    */
     fn from(color: &GameColor) -> Self {
         Self::RGBA(color.red, color.blue, color.green, color.alpha)
     }
@@ -85,27 +91,31 @@ pub struct Scale2D {
 }
 
 impl Scale2D {
-    /// Creates a new `Scale2D` with the given width and height.
-    ///
-    /// # Parameters
-    ///
-    /// - `width`: The width of the scale.
-    /// - `height`: The height of the scale.
-    ///
-    /// # Returns
-    ///
-    /// A new `Scale2D` instance.
+    /**
+    Creates a new `Scale2D` with the given width and height.
+
+    # Parameters
+
+    - `width`: The width of the scale.
+    - `height`: The height of the scale.
+
+    # Returns
+
+    A new `Scale2D` instance.
+    */
     pub fn new(width: u32, height: u32) -> Self {
         Self { width, height }
     }
 }
 
 impl Default for Scale2D {
-    /// Returns the default `Scale2D` with a width of 1280 and a height of 640.
-    ///
-    /// # Returns
-    ///
-    /// A default `Scale2D` instance.
+    /**
+    Returns the default `Scale2D` with a width of 1280 and a height of 640.
+
+    # Returns
+
+    A default `Scale2D` instance.
+    */
     fn default() -> Self {
         Self {
             width: 1280,
@@ -129,17 +139,19 @@ pub struct GameWindow {
 }
 
 impl GameWindow {
-    /// Creates a new `Window` with the given scale, title, and background color.
-    ///
-    /// # Parameters
-    ///
-    /// - `scale2d`: The 2D scale of the window.
-    /// - `title`: The title of the window.
-    /// - `background_color`: The background color of the window.
-    ///
-    /// # Returns
-    ///
-    /// A new `Window` instance.
+    /**
+    Creates a new `Window` with the given scale, title, and background color.
+
+    # Parameters
+
+    - `scale2d`: The 2D scale of the window.
+    - `title`: The title of the window.
+    - `background_color`: The background color of the window.
+
+    # Returns
+
+    A new `Window` instance.
+    */
     pub fn new(scale2d: Scale2D, title: &'static str, background_color: GameColor) -> Self {
         Self {
             scale2d,
@@ -149,16 +161,18 @@ impl GameWindow {
         }
     }
 
-    /// Initializes the SDL2 context and creates the game window and canvas.
-    ///
-    /// # Returns
-    ///
-    /// `Result<(), String>` - Returns `Ok(())`
-    /// if the initialization is successful or an error message if something goes wrong.
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if SDL2 fails to initialize or if the window or canvas creation fails.
+    /**
+    Initializes the SDL2 context and creates the game window and canvas.
+
+    # Returns
+
+    `Result<(), String>` - Returns `Ok(())`
+    if the initialization is successful or an error message if something goes wrong.
+
+    # Errors
+
+    This function will return an error if SDL2 fails to initialize or if the window or canvas creation fails.
+    */
     pub fn init(&mut self) -> Result<(), String> {
         let sdl_context = sdl2::init()?;
         let video_subsystem = sdl_context.video()?;
@@ -209,12 +223,14 @@ impl GameWindow {
 }
 
 impl Default for GameWindow {
-    /// Returns the default `GameWindow` with the title "Anonymous Game"
-    /// a default scale and a black background color.
-    ///
-    /// # Returns
-    ///
-    /// A default `GameWindow` instance.
+    /**
+    Returns the default `GameWindow` with the title "Anonymous Game"
+    a default scale and a black background color.
+
+    # Returns
+
+    A default `GameWindow` instance.
+    */
     fn default() -> Self {
         Self {
             title: "Anonymous Game",
@@ -236,16 +252,18 @@ pub struct Position {
 }
 
 impl Position {
-    /// Create a new 2D position instance
-    ///
-    /// # Arguments
-    ///
-    /// `x` - value of x origin
-    /// `y` - value of y origin
-    ///
-    /// # Returns
-    ///
-    /// `Position` - a new instance of x,y origin
+    /**
+    Create a new 2D position instance
+
+    # Arguments
+
+    `x` - value of x origin
+    `y` - value of y origin
+
+    # Returns
+
+    `Position` - a new instance of x,y origin
+    */
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }

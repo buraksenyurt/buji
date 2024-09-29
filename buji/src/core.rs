@@ -22,19 +22,22 @@ pub enum MainState {
 
 /// A trait representing a game object. This must be implemented by and game object.
 pub trait GameObject {
-    /// Draw operations. Called every frame.
-    ///
-    /// # Arguments
-    ///
-    /// * `asset_server` - Reference of asset server
-    ///
+    /**
+    Draw operations. Called every frame.
+
+    # Arguments
+
+    * `asset_server` - Reference of asset server
+    */
     fn draw(&self, asset_server: &AssetServer);
-    /// Update method for game actors. This is called every frame and
-    /// should return the next state of main engine.
-    ///
-    /// # Returns
-    ///
-    /// A `MainState` value indicating the next state of the engine.
+    /**
+    Update method for game actors. This is called every frame and
+    should return the next state of main engine.
+
+    # Returns
+
+    A `MainState` value indicating the next state of the engine.
+    */
     fn update(&mut self) -> MainState;
 }
 
@@ -65,13 +68,15 @@ impl Default for GameEngine {
 }
 
 impl GameEngine {
-    /// Managing the main loop. The game loop initializes the game, runs the states and updates
-    /// the game object on each frame until the `Exit` state is reached.
-    ///
-    /// # Returns
-    ///
-    /// `Result<(), String>` - Returns `Ok(())` if the main loop exists successfully,
-    /// or an error message if something goes wrong.
+    /**
+    Managing the main loop. The game loop initializes the game, runs the states and updates
+    the game object on each frame until the `Exit` state is reached.
+
+    # Returns
+
+    `Result<(), String>` - Returns `Ok(())` if the main loop exists successfully,
+    or an error message if something goes wrong.
+    */
     pub fn run(&mut self) -> Result<(), String> {
         self.window.init()?;
         linfo!(LogLevel::Info, "Initializing the game engine");
@@ -143,116 +148,128 @@ impl GameEngine {
     }
 }
 
-/// A builder for constructing a `GameEngine` instance. It allows for setting
-/// up the game window, FPS, and the game object in a more flexible and readable way.
-///
-/// # Example
-///
-/// ```rust
-/// use buji::{GameObject, MainState, GameEngineBuilder, DEFAULT_FPS};
-/// use std::io::{stdout, Write};
-/// use buji::AssetServer;
-///
-/// struct YourGameObject;
-///
-/// impl GameObject for YourGameObject {
-///     fn draw(&self,asset_server: &AssetServer) {
-///         // Draw game objects here
-///     }
-///
-///     fn update(&mut self) -> MainState {
-///         // Update game objects and return the next state
-///         MainState::Running
-///     }
-/// }
-///
-/// fn main() -> Result<(), String> {
-///
-///     let game = YourGameObject;
-///     let mut engine = GameEngineBuilder::new()?
-///         .change_fps(DEFAULT_FPS)
-///         .add_game(game)
-///         .build()?;
-///
-///     Ok(())
-///
-/// }
-/// ```
-///
-/// This example demonstrates how to create a simple game using `GameEngineBuilder`.
-/// A custom game object `YourGameObject` is implemented and added to the engine, which is then run at 60 FPS.
+/**
+A builder for constructing a `GameEngine` instance. It allows for setting
+up the game window, FPS, and the game object in a more flexible and readable way.
+
+# Example
+
+```rust
+use buji::{GameObject, MainState, GameEngineBuilder, DEFAULT_FPS};
+use std::io::{stdout, Write};
+use buji::AssetServer;
+
+struct YourGameObject;
+
+impl GameObject for YourGameObject {
+     fn draw(&self,asset_server: &AssetServer) {
+         // Draw game objects here
+     }
+
+     fn update(&mut self) -> MainState {
+         // Update game objects and return the next state
+         MainState::Running
+     }
+}
+
+fn main() -> Result<(), String> {
+
+     let game = YourGameObject;
+     let mut engine = GameEngineBuilder::new()?
+        .change_fps(DEFAULT_FPS)
+         .add_game(game)
+         .build()?;
+
+     Ok(())
+
+}
+```
+
+This example demonstrates how to create a simple game using `GameEngineBuilder`.
+A custom game object `YourGameObject` is implemented and added to the engine, which is then run at 60 FPS.
+*/
 pub struct GameEngineBuilder {
     game_engine: GameEngine,
 }
 
 impl GameEngineBuilder {
-    /// Creates a new `GameEngineBuilder` instance.
-    ///
-    /// # Returns
-    ///
-    /// `Result<Self, String>` - Returns a new `GameEngineBuilder` instance
-    /// if successful or an error message if something goes wrong.
+    /**
+    Creates a new `GameEngineBuilder` instance.
+
+    # Returns
+
+    `Result<Self, String>` - Returns a new `GameEngineBuilder` instance
+    if successful or an error message if something goes wrong.
+    */
     pub fn new() -> Result<Self, String> {
         Ok(Self {
             game_engine: GameEngine::default(),
         })
     }
 
-    /// Sets up the game window.
-    ///
-    /// # Arguments
-    ///
-    /// * `window` Windows object
-    ///
-    /// # Returns
-    ///
-    /// `Result<Self, String>` - Returns the `GameEngineBuilder` instance for chaining.
+    /**
+    Sets up the game window.
+
+    # Arguments
+
+    * `window` Windows object
+
+    # Returns
+
+    `Result<Self, String>` - Returns the `GameEngineBuilder` instance for chaining.
+    */
     pub fn setup_window(mut self, window: GameWindow) -> Result<Self, String> {
         self.game_engine.window = window;
         Ok(self)
     }
 
-    /// Sets the frames per second (FPS) for the game engine.
-    ///
-    /// # Arguments
-    ///
-    /// * `fps` - The desired frames per second for the game.
-    ///
-    /// # Returns
-    ///
-    /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    /**
+    Sets the frames per second (FPS) for the game engine.
+
+    # Arguments
+
+    * `fps` - The desired frames per second for the game.
+
+    # Returns
+
+    `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    */
     pub fn change_fps(mut self, fps: u32) -> Self {
         self.game_engine.fps = fps;
         self
     }
 
-    /// Adds a game object to the game engine.
-    /// The game object must implement the `GameObject`
-    ///
-    /// # Arguments
-    ///
-    /// * `game` - A boxed game object that implements the `GameObject` trait.
-    ///
-    /// # Returns
-    ///
-    /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    /**
+    Adds a game object to the game engine.
+    The game object must implement the `GameObject`
+
+    # Arguments
+
+    * `game` - A boxed game object that implements the `GameObject` trait.
+
+    # Returns
+
+    `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    */
     pub fn add_game<T: GameObject + 'static>(mut self, game: T) -> Self {
         self.game_engine.game_object = Some(Box::new(game));
         self
     }
 
-    /// Add an asset server to the game engine and load sprite sheet
-    ///
-    /// # Arguments
-    ///
-    /// * `source_path` - The file path for the sprite sheet.
-    ///   This will automatically be placed under the "assets/" directory.
-    /// * `tile_width` - Width of each tile.
-    /// * `tile_height` - Height of each tile.
-    ///
-    /// # Returns
-    ///
-    /// `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    /**
+    Add an asset server to the game engine and load sprite sheet
+
+    # Arguments
+
+    * `source_path` - The file path for the sprite sheet.
+      This will automatically be placed under the "assets/" directory.
+    * `tile_width` - Width of each tile.
+    * `tile_height` - Height of each tile.
+
+    # Returns
+
+    `Self` - Returns the `GameEngineBuilder` instance for chaining.
+    */
     pub fn add_asset_server(
         mut self,
         source_path: &str,
@@ -272,12 +289,14 @@ impl GameEngineBuilder {
         self
     }
 
-    /// Builds the `GameEngine` instance with the specified configurations.
-    ///
-    /// # Returns
-    ///
-    /// `Result<GameEngine<W>, String>` - Returns a `GameEngine` instance
-    /// if successful or an error message if the game object or FPS is not set.
+    /**
+    Builds the `GameEngine` instance with the specified configurations.
+
+    # Returns
+
+    `Result<GameEngine<W>, String>` - Returns a `GameEngine` instance
+    if successful or an error message if the game object or FPS is not set.
+    */
     pub fn build(self) -> Result<GameEngine, String> {
         Ok(self.game_engine)
     }
